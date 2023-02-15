@@ -6,16 +6,17 @@
 //
 
 import Foundation
+import FirebaseAuth
+import FirebaseDatabase
 
 class FetchData : ObservableObject {
     @Published var response : Response = Response()
     @Published var pokeResponses : [PokemonResponse] = []
+    @Published var pokeFavorites : [PokemonResponse] = []
     @Published var region : String = "kanto"
     @Published var pokemonId : String = ""
-    @Published var isProcessing = true
     
-    func getData() async {
-        isProcessing = true
+    func getData(completion: () -> Void) async {
         
         /*
          The Pokedex URL
@@ -48,8 +49,7 @@ class FetchData : ObservableObject {
         } catch {
             print(error)
         }
-        // Allow you to have a loading screen while getting data
-        isProcessing = false
+        completion()
     }
     
     // Get pokemon Data, too much for my braincell rn
@@ -69,9 +69,22 @@ class FetchData : ObservableObject {
         }
     }
     
-    func clipUrl(str : String) -> String {
-        var s = str.substring(from: 42, to: str.count)
-        s.remove(at: s.lastIndex(of: "/")!)
-        return s
+    func getFavoritesData(list : [Int], completion: () -> Void) async {
+        for i in 0..<list.count {
+            pokemonId = String(list[i])
+            await getPokemonData()
+        }
     }
+    
+    func clipUrl(str : String) -> String {
+        if str.count > 42 {
+            var s = str.substring(from: 42, to: str.count)
+            s.remove(at: s.lastIndex(of: "/")!)
+            return s
+        } else {
+            return str
+        }
+    }
+    
+    
 }

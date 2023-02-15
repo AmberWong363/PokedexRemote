@@ -7,6 +7,8 @@
 
 import SwiftUI
 import FirebaseAuth
+import FirebaseDatabase
+import Firebase
 
 struct HomeView: View {
     
@@ -20,6 +22,21 @@ struct HomeView: View {
             Rectangle()
                 .foregroundColor(Color.red)
                 .ignoresSafeArea()
+                .onAppear() {
+                    // UID ACQUIRE
+                    guard let uid = Auth.auth().currentUser?.uid else {return}
+                    // REFERENCE TO DATABASE
+                    let ref = Database.database().reference()
+                    // INFO FROM DATABASE
+                    ref.child("users").child(uid).observeSingleEvent(of: .value, with: { snapshot in
+                        let value = snapshot.value as? NSDictionary
+                        let fav = value?["favorites"] as? [Int] ?? [-1]
+                        // Equality
+                        user.favorites = fav
+                    }) { error in
+                        print(error.localizedDescription)
+                    }
+                }
             
             Rectangle()
                 .foregroundColor(Color.white.opacity(0.3))
@@ -48,17 +65,32 @@ struct HomeView: View {
                 .accentColor(Color.black)
                 
                 // Goes to dex page
-                Button {
-                    viewRouter.viewState = .pokedex
-                } label: {
-                    Text("Go to PokeDex")
-                        .padding()
-                        .foregroundColor(Color.black)
-                        .background(Color.gray.opacity(0.3))
-                        .cornerRadius(20)
+                HStack {
+                    Button {
+                        viewRouter.viewState = .pokedex
+                    } label: {
+                        Text("Go to PokeDex")
+                            .padding()
+                            .foregroundColor(Color.black)
+                            .background(Color.gray.opacity(0.3))
+                            .cornerRadius(20)
+                    }
+                    .buttonStyle(.plain)
+                    .padding()
+                    
+                    Button {
+                        print(user.favorites)
+//                        viewRouter.viewState = .favorites
+                    } label: {
+                        Text("Favorites")
+                            .padding()
+                            .foregroundColor(Color.black)
+                            .background(Color.gray.opacity(0.3))
+                            .cornerRadius(20)
+                    }
+                    .buttonStyle(.plain)
+                    .padding()
                 }
-                .buttonStyle(.plain)
-                .padding()
 
                 Spacer()
                 

@@ -7,6 +7,7 @@
 
 import SwiftUI
 import FirebaseAuth
+import FirebaseDatabase
 import Firebase
 
 struct SignInView: View {
@@ -45,6 +46,7 @@ struct SignInView: View {
                             .padding()
                             .background(Color.white.opacity(0.3))
                             .cornerRadius(20)
+                            .buttonStyle(.plain)
                     }
                     
                     Button(action: {
@@ -54,9 +56,17 @@ struct SignInView: View {
                             .padding()
                             .background(Color.white.opacity(0.3))
                             .cornerRadius(20)
+                            .buttonStyle(.plain)
                     }
                     .disabled(!signInProcessing && !user.username.isEmpty && !user.password.isEmpty ? false : true)
                 }
+                Button {
+                    viewRouter.viewState = .passReset
+                } label: {
+                    Text("Forgot password?")
+                        .foregroundColor(Color.black)
+                }
+
                 if signInProcessing {
                     ProgressView()
                 }
@@ -86,6 +96,19 @@ struct SignInView: View {
                 signInProcessing = false
             case .some(_):
                 print("User signed in")
+                guard let uid = Auth.auth().currentUser?.uid else {return}
+                let ref = Database.database().reference().child("users/\(uid)")
+                ref.observeSingleEvent(of: .value, with: { snapshot in
+                    let postDict = snapshot.value as? [String : AnyObject] ?? [:]
+                    
+                    if let favorites = postDict["favorites"] {
+                        user.favorites = favorites as? [Int] ?? []
+                    }
+                   
+                }) { error in
+                    print(error.localizedDescription)
+                }
+                
                 signInProcessing = false
                 viewRouter.viewState = .home
             }

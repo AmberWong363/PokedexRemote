@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct LoadingView: View {
+    @EnvironmentObject var viewRouter : ViewRouter
+    @EnvironmentObject var fetchData : FetchData
     var body: some View {
         ZStack{
             Rectangle()
@@ -23,6 +25,16 @@ struct LoadingView: View {
                     .padding()
                 
                 ProgressView()
+                Button {
+                    fetchData.pokeResponses = []
+                    viewRouter.viewState = .home
+                } label: {
+                    Text("Cancel")
+                        .foregroundColor(Color.black)
+                        .padding()
+                }
+                .buttonStyle(.plain)
+
             }
         }
     }

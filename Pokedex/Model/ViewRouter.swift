@@ -17,4 +17,6 @@ enum ViewState {
     case signUp
     case auth
     case pokedex
+    case passReset
+    case favorites
 }

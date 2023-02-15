@@ -19,9 +19,13 @@ struct MotherView: View {
             SignInView()
         } else if (viewRouter.viewState == .signUp) {
             SignUpView()
+        } else if (viewRouter.viewState == .passReset) {
+            PasswordResetView()
         } else if (user.isLoggedIn) {
             if (viewRouter.viewState == .pokedex) {
                 ContentView()
+            } else if (viewRouter.viewState == .favorites) {
+                FavoritesView()
             } else {
                 HomeView()
             }
